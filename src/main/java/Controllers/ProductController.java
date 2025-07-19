@@ -251,8 +251,8 @@ public class ProductController {
         }
 
         public String askAI(String text) throws Exception {
-//            String apiKey = "AIzaSyAbobxuRAYZy7bfBTqgsLqUMRDsL12FDbc";
-            String apiKey = "AIzaSyAHM3svzVsDVpvocf9r7glnk8sgaP6eXLY";
+            String apiKey = "AIzaSyAbobxuRAYZy7bfBTqgsLqUMRDsL12FDbc";
+//            String apiKey = "AIzaSyAHM3svzVsDVpvocf9r7glnk8sgaP6eXLY";
             String askAI = text;
             JSONObject payload = new JSONObject();
             JSONArray contents = new JSONArray();

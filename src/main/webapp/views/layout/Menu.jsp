@@ -45,7 +45,7 @@
                     <a class="nav-link" href="<%=request.getContextPath()%>/customer/order">Đơn hàng của bạn</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="<%=request.getContextPath()%>/ask-ai">AI tư vấn</a>
+                    <a class="nav-link" href="<%=request.getContextPath()%>/views/public/AI.jsp">AI tư vấn</a>
                 </li>
                 <% } %>
 
@@ -54,7 +54,7 @@
                     <a class="nav-link" href="<%=request.getContextPath()%>/login">Login</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="<%=request.getContextPath()%>/ask-ai">AI tư vấn</a>
+                    <a class="nav-link" href="<%=request.getContextPath()%>/views/public/AI.jsp">AI tư vấn</a>
                 </li>
                 <% } %>
             </ul>

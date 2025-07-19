@@ -261,7 +261,7 @@
                             <h5 class="mb-0">Leave a Review</h5>
                         </div>
                         <div class="card-body">
-                            <form action="<%=request.getContextPath()%>/comment" method="post">
+                            <form action="<%=request.getContextPath()%>/customer/comment" method="post">
                                 <input type="hidden" name="productId" value="<%= detail.getId() %>">
                                 <div class="form-group">
                                     <label>Rating:</label>
