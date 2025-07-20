@@ -1,32 +1,21 @@
 package dal;
 
-import jakarta.persistence.NoResultException;
 import jakarta.persistence.TypedQuery;
 import model.User;
 
 public class UserDao extends GenericDao<User> {
 
     public User login(String username, String password) {
-        try {
-            TypedQuery<User> query = entityManager.createQuery("select u from User u where u.username = :username and u.password = :password", User.class);
-            query.setParameter("username", username);
-            query.setParameter("password", password);
-            return query.getSingleResult();
-        } catch (NoResultException e) {
-            e.printStackTrace();
-            return null;
-        }
+        TypedQuery<User> query = entityManager.createQuery("select u from User u where u.username = :username and u.password = :password", User.class);
+        query.setParameter("username", username);
+        query.setParameter("password", password);
+        return query.getResultStream().findFirst().orElse(null);
     }
 
     public User checkUserExistUsername(String username) {
-        try {
-            TypedQuery<User> query = entityManager.createQuery("select u from User u where u.username = :username", User.class);
-            query.setParameter("username", username);
-            return query.getSingleResult();
-        } catch (NoResultException e) {
-            e.printStackTrace();
-            return null;
-        }
+        TypedQuery<User> query = entityManager.createQuery("select u from User u where u.username = :username", User.class);
+        query.setParameter("username", username);
+        return query.getResultStream().findFirst().orElse(null);
     }
 
     /*public static void signup(String UserName, String Password) {

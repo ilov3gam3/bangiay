@@ -1,7 +1,9 @@
 package dal;
 
+import jakarta.persistence.EntityTransaction;
 import jakarta.persistence.TypedQuery;
 import model.Cart;
+import model.Customer;
 import model.Product;
 
 import java.util.ArrayList;
@@ -29,6 +31,22 @@ public class CartDao extends GenericDao<Cart> {
         typedQuery.setParameter("customerId", userId);
         return typedQuery.getResultList();
     }
+    public void deleteCartsOfCustomer(Customer customer) {
+        EntityTransaction tx = entityManager.getTransaction();
+        try {
+            tx.begin(); // BẮT BUỘC!
+            int deleted = entityManager.createQuery(
+                            "DELETE FROM Cart c WHERE c.customer.id = :customerId")
+                    .setParameter("customerId", customer.getId())
+                    .executeUpdate();
+            tx.commit();
+            System.out.println("Deleted " + deleted + " cart(s)");
+        } catch (Exception e) {
+            if (tx.isActive()) tx.rollback();
+            e.printStackTrace();
+        }
+    }
+
 
     /*public static void updateQuantity(Cart cart) {
         try {

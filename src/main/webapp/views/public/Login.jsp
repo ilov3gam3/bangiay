@@ -17,7 +17,7 @@
     </head>
     <body>
         <div id="logreg-forms">
-            <form class="form-signin" action="login" method="post">
+            <form class="form-signin" action="<%=request.getContextPath()%>/login" method="post">
                 <h1 class="h3 mb-3 font-weight-normal" style="text-align: center"> Sign in</h1>
 
                 <input name="UserName"  type="text" id="inputEmail" class="form-control" placeholder="Username" required="" autofocus="">
@@ -33,7 +33,7 @@
                 <button class="btn btn-primary btn-block" type="button" id="btn-signup"><i class="fas fa-user-plus"></i> Sign up New Account</button>
             </form>
 
-            <form action="signup" method="post" class="form-signup">
+            <form action="<%=request.getContextPath()%>/register" method="post" class="form-signup">
                 <h1 class="h3 mb-3 font-weight-normal" style="text-align: center"> Sign up</h1>
                 <input name="user" type="text" id="user-name" class="form-control" placeholder="User name" required="" autofocus="">
                 <input name="pass" type="password" id="user-pass" class="form-control" placeholder="Password" required autofocus="">
@@ -52,14 +52,17 @@
         <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
         <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
         <script>
+            const showSignUp = '<%=request.getParameter("showSignUp")%>'
+            if(showSignUp === 'true'){
+                toggleSignUp()
+            }
             function toggleResetPswd(e) {
                 e.preventDefault();
                 $('#logreg-forms .form-signin').toggle() // display:block or none
                 $('#logreg-forms .form-reset').toggle() // display:block or none
             }
 
-            function toggleSignUp(e) {
-                e.preventDefault();
+            function toggleSignUp() {
                 $('#logreg-forms .form-signin').toggle(); // display:block or none
                 $('#logreg-forms .form-signup').toggle(); // display:block or none
             }

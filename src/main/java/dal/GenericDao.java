@@ -99,22 +99,39 @@ public abstract class GenericDao<T> {
     }
 
     public void deleteAll(List<T> entities) {
+        if (entities == null || entities.isEmpty()) {
+            System.out.println("No entities to delete.");
+            return;
+        }
+
         EntityTransaction transaction = entityManager.getTransaction();
         try {
             transaction.begin();
+            System.out.println("Deleting " + entities.size() + " entities");
+
             for (T entity : entities) {
-                if (entity != null && entityManager.contains(entity)) {
+                if (entity == null) continue;
+
+                // In log nếu muốn: class name + hashCode (tránh dùng reflection)
+                System.out.println("Deleting entity: " + entity.getClass().getSimpleName() + "@" + Integer.toHexString(System.identityHashCode(entity)));
+
+                if (entityManager.contains(entity)) {
                     entityManager.remove(entity);
                 } else {
                     entityManager.remove(entityManager.merge(entity));
                 }
             }
+
             transaction.commit();
+            System.out.println("DeleteAll: Transaction committed");
         } catch (Exception e) {
-            transaction.rollback();
+            if (transaction.isActive()) transaction.rollback();
+            System.out.println("DeleteAll: Transaction rolled back due to exception:");
             e.printStackTrace();
         }
     }
+
+
 
     public void close() {
         entityManager.close();

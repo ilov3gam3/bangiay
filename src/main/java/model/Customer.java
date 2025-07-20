@@ -24,6 +24,7 @@ public class Customer {
     private User user;
     @Column(nullable = false, columnDefinition = "NVARCHAR(255)")
     private String fullname;
+    @Column(unique = true, nullable = false)
     private String email;
     @Column(unique = true, nullable = false)
     private String phone;

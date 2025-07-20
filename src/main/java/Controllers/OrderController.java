@@ -11,6 +11,7 @@ import model.Constant.Status;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class OrderController {
@@ -22,6 +23,7 @@ public class OrderController {
             User user = (User) req.getSession().getAttribute("acc");
             Customer customer = customerDao.getById(user.getId());
             List<Order> orders = customer.getOrders();
+            Collections.reverse(orders);
             req.setAttribute("orders", orders);
             req.getRequestDispatcher("/views/user/Order.jsp").forward(req, resp);
         }
@@ -32,7 +34,8 @@ public class OrderController {
         @Override
         protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
             List<Order> orders = new OrderDao().getAll();
-            req.setAttribute("orders", orders.reversed());
+            Collections.reverse(orders);
+            req.setAttribute("orders", orders);
             req.getRequestDispatcher("/views/admin/AdminOrder.jsp").forward(req, resp);
         }
 
@@ -54,6 +57,7 @@ public class OrderController {
             CustomerDao customerDao = new CustomerDao();
             CartDao cartDao = new CartDao();
             OrderDao orderDao = new OrderDao();
+            ProductDao productDao = new ProductDao();
             User user = (User) req.getSession().getAttribute("acc");
             Customer customer = customerDao.getById(user.getId());
             List<Cart> carts = customer.getCarts();
@@ -74,6 +78,7 @@ public class OrderController {
             Order order = new Order(customer, totalPrice, Status.PENDING);
             orderDao.save(order);
             List<OrderDetail> orderDetails = new ArrayList<>();
+            List<Product> products = new ArrayList<>();
             for (Cart cart : carts) {
                 OrderDetail orderDetail = new OrderDetail();
                 orderDetail.setQuantity(cart.getQuantity());
@@ -81,9 +86,16 @@ public class OrderController {
                 orderDetail.setPrice(cart.getProduct().getPrice());
                 orderDetail.setOrder(order);
                 orderDetails.add(orderDetail);
+
+                Product temp = cart.getProduct();
+                temp.setStock(temp.getStock() - orderDetail.getQuantity());
+                products.add(temp);
             }
+            productDao.updateAll(products);
             new OrderDetailDao().saveAll(orderDetails);
-            cartDao.deleteAll(carts);
+            System.out.println("remove");
+            cartDao.deleteCartsOfCustomer(customer);
+            System.out.println("remove");
             req.getSession().setAttribute("flash_success", "Đặt hàng thành công.");
             resp.sendRedirect(req.getContextPath() + "/customer/order");
         }

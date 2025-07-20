@@ -4,11 +4,13 @@
 <%@ page import="java.util.ArrayList" %>
 <%@ page import="dal.CartDao" %>
 <%@ page import="model.Constant.Role" %>
+<%@ page import="java.text.DecimalFormat" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%
     User user = request.getSession().getAttribute("acc") == null ? null : (User) request.getSession().getAttribute("acc");
 %>
+<% DecimalFormat df = new DecimalFormat("#,##0.##"); %>
 <!--begin of menu-->
 <nav class="navbar navbar-expand-md navbar-dark bg-dark">
     <div class="container">

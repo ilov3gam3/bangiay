@@ -81,20 +81,44 @@ public class UserController {
         @Override
         protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
             User user = (User) req.getSession().getAttribute("acc");
+            if (user == null) {
+                resp.sendRedirect(req.getContextPath() + "/login");
+                return;
+            }
+
             CustomerDao customerDao = new CustomerDao();
             Customer customer = customerDao.getById(user.getId());
-            String FullName = req.getParameter("FullName");
-            String Email = req.getParameter("Email");
-            String PhoneNumber = req.getParameter("PhoneNumber");
-            String Address = req.getParameter("Address");
-            customer.setFullname(FullName);
-            customer.setEmail(Email);
-            customer.setPhone(PhoneNumber);
-            customer.setAddress(Address);
+
+            String fullName = req.getParameter("FullName");
+            String email = req.getParameter("Email");
+            String phoneNumber = req.getParameter("PhoneNumber");
+            String address = req.getParameter("Address");
+
+            // Kiểm tra email trùng (ngoại trừ chính mình)
+            if (customerDao.checkCustomerExistEmailExcept(email, user.getId()) != null) {
+                req.getSession().setAttribute("flash_error", "Email đã được sử dụng bởi tài khoản khác.");
+                resp.sendRedirect(req.getContextPath() + "/customer/profile");
+                return;
+            }
+
+            // Kiểm tra số điện thoại trùng (ngoại trừ chính mình)
+            if (customerDao.checkCustomerExistPhoneExcept(phoneNumber, user.getId()) != null) {
+                req.getSession().setAttribute("flash_error", "Số điện thoại đã được sử dụng bởi tài khoản khác.");
+                resp.sendRedirect(req.getContextPath() + "/customer/profile");
+                return;
+            }
+
+            // Cập nhật thông tin
+            customer.setFullname(fullName);
+            customer.setEmail(email);
+            customer.setPhone(phoneNumber);
+            customer.setAddress(address);
             customerDao.update(customer);
+
             req.getSession().setAttribute("flash_success", "Cập nhật thông tin thành công.");
             resp.sendRedirect(req.getContextPath() + "/customer/profile");
         }
+
     }
 
     @WebServlet("/customer/change-password")
@@ -123,46 +147,60 @@ public class UserController {
     }
 
     @WebServlet("/register")
-    public static class RegisterServlet extends HttpServlet{
+    public static class RegisterServlet extends HttpServlet {
         @Override
         protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
             UserDao userDao = new UserDao();
-            String UserName = request.getParameter("user");
-            String Password = request.getParameter("pass");
-            String RepeatPassword = request.getParameter("repass");
+            CustomerDao customerDao = new CustomerDao();
+
+            String username = request.getParameter("user");
+            String password = request.getParameter("pass");
+            String repeatPassword = request.getParameter("repass");
             String fullname = request.getParameter("fullname");
             String email = request.getParameter("email");
             String phone = request.getParameter("phone");
             String address = request.getParameter("address");
-            if(!Password.equals(RepeatPassword)){
-                request.getSession().setAttribute("flash_error", "Mật khẩu không khớp.");
-                response.sendRedirect(request.getContextPath() + "/login");
-            }
-            else{
-                User a = userDao.checkUserExistUsername(UserName);
-                if (a == null) {
-                    CustomerDao customerDao = new CustomerDao();
-                    a = customerDao.checkCustomerExistPhone(phone);
-                    if (a == null) {
-                        User user = new User(UserName, Password, Role.CUSTOMER);
-                        userDao.save(user);
-                        Customer customer = new Customer(user, fullname, email, phone, address);
-                        customerDao.save(customer);
-                        request.getSession().setAttribute("flash_success", "Đăng kí thành công.");
-                        response.sendRedirect(request.getContextPath() + "/home");
-                    } else {
-                        request.getSession().setAttribute("flash_error", "Số điện thoại đã tồn tại.");
-                        response.sendRedirect(request.getContextPath() + "/login");
-                    }
-                }
-                else{
-                    request.getSession().setAttribute("flash_error", "Username đã tồn tại.");
-                    response.sendRedirect(request.getContextPath() + "/login");
-                }
 
+            // Kiểm tra mật khẩu lặp lại
+            if (!password.equals(repeatPassword)) {
+                request.getSession().setAttribute("flash_error", "Mật khẩu không khớp.");
+                response.sendRedirect(request.getContextPath() + "/login?showSignUp=true");
+                return;
             }
+
+            // Kiểm tra username đã tồn tại
+            if (userDao.checkUserExistUsername(username) != null) {
+                request.getSession().setAttribute("flash_error", "Username đã tồn tại.");
+                response.sendRedirect(request.getContextPath() + "/login?showSignUp=true");
+                return;
+            }
+
+            // Kiểm tra số điện thoại đã tồn tại
+            if (customerDao.checkCustomerExistPhone(phone) != null) {
+                request.getSession().setAttribute("flash_error", "Số điện thoại đã tồn tại.");
+                response.sendRedirect(request.getContextPath() + "/login?showSignUp=true");
+                return;
+            }
+
+            // Kiểm tra email đã tồn tại
+            if (customerDao.checkCustomerExistEmail(email) != null) {
+                request.getSession().setAttribute("flash_error", "Email đã tồn tại.");
+                response.sendRedirect(request.getContextPath() + "/login?showSignUp=true");
+                return;
+            }
+
+            // Lưu user và customer mới
+            User user = new User(username, password, Role.CUSTOMER);
+            userDao.save(user);
+
+            Customer customer = new Customer(user, fullname, email, phone, address);
+            customerDao.save(customer);
+
+            request.getSession().setAttribute("flash_success", "Đăng ký thành công.");
+            response.sendRedirect(request.getContextPath() + "/login");
         }
     }
+
 
     @WebServlet("/admin/users")
     public static class AdminCustomerServlet extends HttpServlet {
